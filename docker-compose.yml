@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app            # hot-reload style; remove if you prefer immutable image
+      - ./data:/app/data  # persist SQLite file in ./data
+    # If you use uvicorn --reload in dev, you can also set:
+    # command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+
+
+
+# explaination:
+# This docker-compose.yml file defines a multi-container Docker application with two services: web and db.
+# The web service is built from the current directory (.) and maps port 8000 on the host to port 8000 in the container.
+# It also mounts the current directory to /app in the container, allowing for live code updates.
+# The web service depends on the db service, ensuring that the database is started before the web service.
+# The db service uses the nouchka/sqlite3 image, which provides a lightweight SQLite database.
+# It keeps the standard input open and allocates a pseudo-TTY, which is useful for interactive sessions.
+# The db service also mounts a local ./data directory to /root/db in the container, allowing for persistent storage of the database files.
+# This setup is ideal for a development environment where you want to quickly iterate on your FastAPI application while using SQLite as the database.
+
+
+
+
+# why we use docker-compase.yml?
+# Docker Compose is a tool that allows you to define and manage multi-container Docker applications using a simple YAML file.
+# It simplifies the process of setting up, configuring, and running multiple interconnected services, making it easier to develop, test, and deploy applications.
+
