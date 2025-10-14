@@ -1,33 +1,71 @@
-version: "3.8"
-
+version: "3.9"
 services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb -h localhost"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
   web:
     build: .
     ports:
       - "8000:8000"
+      - "8080:8080"
     volumes:
-      - .:/app            # hot-reload style; remove if you prefer immutable image
-      - ./data:/app/data  # persist SQLite file in ./data
-    # If you use uvicorn --reload in dev, you can also set:
-    # command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      - .:/app
+      - "D:/My code/software engineer/LeetCode/projects/fastapi-jwt-sqlite/profiles:/profiles"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - PROFILE=1 
 
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
 
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
 
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
-# explaination:
-# This docker-compose.yml file defines a multi-container Docker application with two services: web and db.
-# The web service is built from the current directory (.) and maps port 8000 on the host to port 8000 in the container.
-# It also mounts the current directory to /app in the container, allowing for live code updates.
-# The web service depends on the db service, ensuring that the database is started before the web service.
-# The db service uses the nouchka/sqlite3 image, which provides a lightweight SQLite database.
-# It keeps the standard input open and allocates a pseudo-TTY, which is useful for interactive sessions.
-# The db service also mounts a local ./data directory to /root/db in the container, allowing for persistent storage of the database files.
-# This setup is ideal for a development environment where you want to quickly iterate on your FastAPI application while using SQLite as the database.
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+  
 
+  
 
+# explanation
+# This docker-compose.yml file defines two services: 'web' and 'db'.
+# The 'web' service builds from the current directory, maps port 8000 on the host to port 8000 in the container, and mounts the current directory to /app in the container. It also depends on the 'db' service.
+# The 'db' service uses the official PostgreSQL 14 image, sets environment variables for the database user, password, and name, maps port 5432 on the host to port 5432 in the container, and mounts a volume for persistent data storage.
+# This setup is useful for a web application that requires a PostgreSQL database.
 
-
-# why we use docker-compase.yml?
-# Docker Compose is a tool that allows you to define and manage multi-container Docker applications using a simple YAML file.
-# It simplifies the process of setting up, configuring, and running multiple interconnected services, making it easier to develop, test, and deploy applications.
 

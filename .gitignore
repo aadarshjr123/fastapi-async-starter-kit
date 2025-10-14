@@ -1,0 +1,102 @@
+# ===============================
+# Python
+# ===============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+develop-eggs/
+.installed.cfg
+MANIFEST
+
+# ===============================
+# Virtual Environment
+# ===============================
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+env.bkp/
+pip-wheel-metadata/
+
+# ===============================
+# IDE / Editors
+# ===============================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ===============================
+# OS Files
+# ===============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===============================
+# Logs / Debug / Profiling
+# ===============================
+*.log
+*.prof
+*.lprof
+*.dat
+*.out
+profile/
+profiles/
+__profile__/
+*.sqlite3
+
+# ===============================
+# Testing
+# ===============================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+.cache/
+junit-*.xml
+
+# ===============================
+# Jupyter / Notebooks
+# ===============================
+.ipynb_checkpoints
+*.ipynb
+
+# ===============================
+# Docker / Compose
+# ===============================
+# Ignore local volumes, build artifacts, and overrides
+__pycache__/
+pgdata
+redis-data/
+volumes/
+*.pid
+*.sock
+*.pid.lock
+
+# ===============================
+# Env Files / Secrets
+# ===============================
+.env
+.env.*
+*.secret
+*.key
+*.pem
+
+
+# ===============================
+# Prometheus / Grafana
+# ===============================
+prometheus_data/
+grafana_data/
