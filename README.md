@@ -1,116 +1,133 @@
-# ⚡ FastAPI Async Starter Kit
+# ⚡ FastAPI Async Starter Kit — _“Blazingly fast, mildly caffeinated.”_ ☕🚀
 
-> “Blazingly fast, mildly caffeinated.” ☕🚀
-
-A fully async backend built with **FastAPI**, **PostgreSQL**, **Redis**, and **JWT Authentication**,  
-supercharged with **Prometheus + Grafana** to keep an eye on how awesome (or broken) it is.
+A production-ready, fully async backend built with **FastAPI**, **PostgreSQL**, **Redis**, and **JWT Authentication**,  
+supercharged with **Prometheus + Grafana** monitoring — because watching metrics is half the fun.
 
 ---
 
-## 🧠 What’s This?
+## 🧠 What’s Inside
 
-This isn’t “just another FastAPI project.”  
-It’s your **personal playground for async perfection** — featuring:
+This isn’t just another boilerplate — it’s a **real-world async playground** featuring:
 
-- 🌀 Async everything (DB, Redis, endpoints)  
-- 🔐 JWT Auth that even your cat can’t brute-force  
-- 💾 Redis cache because speed is life  
-- 📊 Prometheus metrics because who doesn’t love pretty charts  
-- 🚦 Rate limiter (be kind, API abusers)  
-- 🐳 Docker because “it works on my machine” isn’t good enough anymore  
+- 🌀 **Full async stack** (FastAPI + SQLAlchemy + Redis)  
+- 🔐 **JWT Authentication** (secure and stateless)  
+- 💾 **Redis caching & rate limiting**  
+- 📊 **Prometheus metrics + Grafana dashboards**  
+- 🚦 **Custom rate-limiter middleware**  
+- 🧩 **Profiling middleware** for request performance  
+- 🐳 **Dockerized micro-stack** (Postgres, Redis, Grafana, Prometheus, Worker)
 
 ---
 
-## 🏗️ Stack of Awesome
+## 🏗️ Tech Stack
 
 | Tech | Why |
 |------|-----|
-| **FastAPI** | Async, fast, Pythonic — like the name says |
-| **SQLAlchemy + asyncpg** | PostgreSQL with async sugar |
-| **Redis** | Caching + rate limiting (and instant regret if you forget await) |
-| **Prometheus + Grafana** | See your API panic in real time |
-| **JWT Auth** | Stateless and simple |
-| **Docker Compose** | Because DevOps said so |
+| **FastAPI** | Modern async web framework |
+| **SQLAlchemy + asyncpg** | Async ORM for PostgreSQL |
+| **Redis + RQ** | Queue, cache, and rate limiter |
+| **Prometheus + Grafana** | Metrics, alerts, dashboards |
+| **JWT + Passlib** | Authentication & password hashing |
+| **Docker Compose** | Seamless local orchestration |
 
 ---
 
-## 🗺️ Architecture (Because We’re Fancy)
+## 🗺️ Architecture
 
 ```
 app/
-├── main.py              # Entry point (registers routers)
-├── database.py          # Async SQLAlchemy setup
-├── models.py            # ORM models
+├── main.py                  # FastAPI entrypoint
+├── core/
+│   ├── config.py            # Settings management
+│   ├── database.py          # Async DB engine
+│   ├── lifecycle.py         # Startup/shutdown events
+│   └── router_registry.py   # Router registration
 │
 ├── auth/
-│   ├── routes.py        # Login + register endpoints
-│   └── service.py       # JWT, hashing, verification
+│   ├── routes.py            # Register & login endpoints
+│   ├── service.py           # AuthService logic
+│   ├── password_utils.py    # Hashing + validation
+│   └── jwt_utils.py         # Token encode/decode helpers
 │
 ├── users/
-│   ├── routes.py        # CRUD routes for users
-│   └── service.py       # Async DB + Redis logic
+│   ├── routes.py            # CRUD routes
+│   ├── service.py           # Business logic + caching
+│   └── schemas.py           # Pydantic models
+│
+├── repositories/
+│   └── user_repository.py   # DB access layer
 │
 ├── utils/
-│   ├── logging_utils.py # log_time decorator (fast & curious)
+│   ├── logging_utils.py     # @log_time decorator
 │   ├── profile_middleware.py
-│   └── rate_limiter.py
-
+│   ├── rate_limiter.py
+│   └── redis_manager.py
+│
+├── queue/
+│   ├── routes.py            # Job endpoints
+│   └── worker.py            # Background processor
+│
+└── tasks.py                 # Job logic
 ```
 
 ---
 
-## 🧩 Setup (Choose Your Adventure)
+## ⚙️ Quickstart
 
-### 🐍 Local Mode
-
-For those who enjoy typing commands manually:
+### 🧩 Option 1: Local (Windows/macOS/Linux)
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # or .venv\Scripts\activate on Windows
+.venv\Scripts\activate    # Windows
+# or
+source .venv/bin/activate # macOS/Linux
+
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Visit 👉 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+Then visit 👉 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
-### 🐳 Docker Mode
-
-For those who prefer one-line world domination:
+### 🐳 Option 2: Docker (Recommended)
 
 ```bash
 docker compose up --build
 ```
 
-Everything just… works™.
+This spins up:
+- FastAPI (`:8000`)
+- PostgreSQL (`:5432`)
+- Redis (`:6379`)
+- Grafana (`:3000`)
+- Prometheus (`:9090`)
+- pgAdmin (`:5050`)
 
 | Service | URL |
 |----------|-----|
-| **FastAPI Swagger** | [http://localhost:8000/docs](http://localhost:8000/docs) |
-| **Prometheus** | [http://localhost:9090](http://localhost:9090) |
-| **Grafana** | [http://localhost:3000](http://localhost:3000) |
-| **pgAdmin** | [http://localhost:5050](http://localhost:5050) |
+| 🧠 **API Docs** | [http://localhost:8000/docs](http://localhost:8000/docs) |
+| 📊 **Prometheus** | [http://localhost:9090](http://localhost:9090) |
+| 📈 **Grafana** | [http://localhost:3000](http://localhost:3000) |
+| 🗄️ **pgAdmin** | [http://localhost:5050](http://localhost:5050) |
 
 ---
 
-## 🔐 Auth Flow (a.k.a. How to Feel Powerful)
+## 🔐 Auth Flow
 
-1. Register → `POST /auth/register`  
-2. Login → `POST /auth/token`  
-3. Copy your **access_token** (a.k.a. VIP pass)  
-4. Click **Authorize** in Swagger → `Bearer <token>`  
-5. Flex on protected routes 💪
+| Step | Endpoint | Description |
+|------|-----------|-------------|
+| 🪪 1 | `POST /auth/register` | Create a user |
+| 🔑 2 | `POST /auth/token` | Get JWT token |
+| 🛡️ 3 | Use `Bearer <token>` | Access protected endpoints |
 
 ---
 
-## 📬 Example Requests
+### 🔧 Example
 
-### 👶 Register
-
+#### Register
 ```bash
-POST /auth/register?name=Alice&password=secret
+POST /auth/register?name=Alice&password=secret123
 ```
 
 **Response:**
@@ -118,14 +135,11 @@ POST /auth/register?name=Alice&password=secret
 { "id": 1, "name": "Alice" }
 ```
 
----
-
-### 🔑 Login
-
+#### Login
 ```bash
 POST /auth/token
 Content-Type: application/x-www-form-urlencoded
-username=Alice&password=secret
+username=Alice&password=secret123
 ```
 
 **Response:**
@@ -135,60 +149,74 @@ username=Alice&password=secret
 
 ---
 
-### 🧑‍💻 Get Users
+## 📊 Monitoring
 
-```bash
-GET /users/
-Authorization: Bearer <JWT_TOKEN>
-```
-
-**Response:**
-```json
-[ { "id": 1, "name": "Alice", "email": "alice@example.com" } ]
-```
-
----
-
-## 📊 Monitoring (aka “Graphs Make Me Feel Productive”)
-
-| Metric | Description | PromQL |
-|---------|--------------|--------|
-| `http_requests_total` | How often users bug your API | `sum(rate(http_requests_total[1m])) by (handler)` |
-| `http_request_duration_seconds` | How long you made them wait | `sum(rate(http_request_duration_seconds_sum[1m])) / sum(rate(http_request_duration_seconds_count[1m]))` |
-| `cache_hits_total` | Redis high-fives | `rate(cache_hits_total[1m])` |
-| `cache_misses_total` | Redis facepalms | `rate(cache_misses_total[1m])` |
-
----
-
-## 🧠 Pro Tips
-
-- Don’t forget to `await` everything — async is unforgiving.  
-- Want to feel fancy? Add `PROFILE=1` to env vars to auto-profile requests.  
-- If your cache hit rate is 0%… maybe you forgot to call the API twice 😅.  
-- Logs say `"get_users took 13.37 ms"` → you’re basically Google now.  
+| Metric | Meaning | PromQL |
+|---------|----------|--------|
+| `http_requests_total` | Total requests | `sum(rate(http_requests_total[1m])) by (handler)` |
+| `cache_hits_total` | Redis cache hits | `rate(cache_hits_total[1m])` |
+| `jobs_finished_total` | Completed background jobs | `increase(jobs_finished_total[5m])` |
 
 ---
 
 ## 🧩 Environment Variables
 
-| Variable | Description |
-|-----------|--------------|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `SECRET_KEY` | JWT signing key |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Token lifetime |
-| `PROFILE` | Enable profiling middleware (0/1) |
+| Variable | Default | Description |
+|-----------|----------|-------------|
+| `DATABASE_URL` | `postgresql+asyncpg://myuser:mypassword@db:5432/mydb` | Postgres DSN |
+| `REDIS_URL` | `redis://redis:6379` | Redis connection |
+| `SECRET_KEY` | `"dev_secret_key"` | JWT signing key |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `30` | Token expiration |
+| `PROFILE` | `0` | Enable request profiling |
+| `PASSLIB_BUILTIN_BCRYPT` | `1` | Use stable bcrypt backend |
 
 ---
 
-## 🧙‍♂️ Final Words
+## 🧠 Troubleshooting
 
-> Code is async. Coffee is sync.  
-> Push responsibly. ☕
+| Problem | Cause | Fix |
+|----------|--------|-----|
+| ❌ `password cannot be longer than 72 bytes` | bcrypt C extension bug | `ENV PASSLIB_BUILTIN_BCRYPT=1` (already in Dockerfile) |
+| ❌ `Registration failed` | Database missing `users` table | Rebuild containers: `docker compose down && docker compose up --build` |
+| ❌ Redis not connected | Startup race condition | Wait a few seconds, Redis retries automatically |
+| ❌ `/users` cache not updating | Redis TTL expired | Restart app or flush Redis (`redis-cli FLUSHALL`) |
 
 ---
 
-## 🧾 License
+## 🧰 Developer Tools
 
-MIT License © 2025 — free to use, improve, or break at your own risk.  
+| Command | Description |
+|----------|-------------|
+| `make up` | Start Docker stack |
+| `make down` | Stop all containers |
+| `make logs` | Tail FastAPI logs |
 
-If you deploy it in production and it crashes — congratulations, you just learned DevOps.
+> 💡 Windows users: Install `make` via `choco install make` or use the PowerShell equivalents.
+
+---
+
+## 🧙‍♂️ Tips
+
+- Always `await` async DB + Redis calls.
+- Enable profiling with `PROFILE=1` for per-request `.prof` dumps.
+- Use Grafana dashboards under `grafana/dashboards/` — preconfigured for metrics.
+
+---
+
+## 📜 License
+
+MIT © 2025 — Use, modify, and deploy freely.  
+If it crashes in production… congratulations, you’re a backend engineer now. 😎
+
+---
+
+### 🪄 TL;DR
+
+```bash
+git clone https://github.com/<your-username>/fastapi-async-starter
+cd fastapi-async-starter
+docker compose up --build
+```
+
+Then open [http://localhost:8000/docs](http://localhost:8000/docs)  
+and say hello to your fully async, observability-ready API 🚀

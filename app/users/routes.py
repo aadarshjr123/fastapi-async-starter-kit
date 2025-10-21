@@ -1,20 +1,51 @@
-from fastapi import APIRouter, Depends, HTTPException
+"""
+User API endpoints — thin controller layer using the UserService.
+"""
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import get_db
+from app.core.database import get_db
 from app.utils.logging_utils import log_time
-from app.main import redis_client
-from app.users.service import get_all_users, create_user
+from app.users.service import UserService
+from app.users.schemas import UserCreate, UserRead
+from app.utils import redis_manager
 
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/", summary="Get all users")
+@router.get("/", response_model=list[UserRead], summary="List all users")
 @log_time
 async def list_users(db: AsyncSession = Depends(get_db)):
-    return await get_all_users(db, redis_client)
+    """
+    Retrieve all users (cached in Redis).
+    """
+    if not redis_manager.redis_client:
+        raise HTTPException(status_code=500, detail="Redis not initialized")
+
+    service = UserService(db, redis_manager.redis_client)
+    try:
+        return await service.list_users()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch users: {e}",
+        )
 
 
-@router.post("/", summary="Create a new user")
+@router.post("/", response_model=UserRead, summary="Create a new user")
 @log_time
-async def add_user(name: str, email: str, db: AsyncSession = Depends(get_db)):
-    return await create_user(db, name, email, redis_client)
+async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
+    """
+    Create a new user and clear cached user list.
+    """
+    if not redis_manager.redis_client:
+        raise HTTPException(status_code=500, detail="Redis not initialized")
+
+    service = UserService(db, redis_manager.redis_client)
+    try:
+        return await service.create_user(user)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create user: {e}",
+        )

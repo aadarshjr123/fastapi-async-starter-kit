@@ -1,5 +1,9 @@
 version: "3.9"
+
 services:
+  # ======================
+  # PostgreSQL Database
+  # ======================
   db:
     image: postgres:14
     environment:
@@ -12,26 +16,94 @@ services:
       - ./pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myuser -d mydb -h localhost"]
-      interval: 2s
-      timeout: 2s
+      interval: 3s
+      timeout: 3s
       retries: 20
 
+  # ======================
+  # FastAPI Web Service
+  # ======================
   web:
     build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
-      - "8080:8080"
     volumes:
       - .:/app
-      - "D:/My code/software engineer/LeetCode/projects/fastapi-jwt-sqlite/profiles:/profiles"
     depends_on:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     environment:
-      - PROFILE=1 
+      - PROFILE=1
+    restart: always
 
+  # ======================
+  # Redis for Cache + RQ
+  # ======================
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  # ======================
+  # Redis Queue Worker
+  # ======================
+  worker:
+    build: .
+    command: rq worker --url redis://redis:6379 default
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    restart: always
+
+  # ======================
+  # Scheduled Job Cleaner
+  # ======================
+  job-cleaner:
+    build: .
+    command: ["python", "-m", "app.cron_cleaner"]
+    depends_on:
+      - redis
+    restart: always
+
+  # ======================
+  # Prometheus (Monitoring)
+  # ======================
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  # ======================
+  # Grafana (Dashboards)
+  # ======================
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    volumes:
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+
+  # ======================
+  # pgAdmin (Optional UI)
+  # ======================
   pgadmin:
     image: dpage/pgadmin4
     environment:
@@ -41,31 +113,3 @@ services:
       - "5050:80"
     depends_on:
       - db
-
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-
-  prometheus:
-    image: prom/prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "3000:3000"
-  
-
-  
-
-# explanation
-# This docker-compose.yml file defines two services: 'web' and 'db'.
-# The 'web' service builds from the current directory, maps port 8000 on the host to port 8000 in the container, and mounts the current directory to /app in the container. It also depends on the 'db' service.
-# The 'db' service uses the official PostgreSQL 14 image, sets environment variables for the database user, password, and name, maps port 5432 on the host to port 5432 in the container, and mounts a volume for persistent data storage.
-# This setup is useful for a web application that requires a PostgreSQL database.
-
-

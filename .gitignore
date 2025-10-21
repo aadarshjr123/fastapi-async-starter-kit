@@ -3,11 +3,9 @@
 # ===============================
 __pycache__/
 *.py[cod]
-*$py.class
 *.pyo
 *.pyd
 *.pdb
-*.egg
 *.egg-info/
 .eggs/
 build/
@@ -17,7 +15,7 @@ develop-eggs/
 MANIFEST
 
 # ===============================
-# Virtual Environment
+# Virtual Environments
 # ===============================
 .venv/
 venv/
@@ -28,16 +26,12 @@ env.bkp/
 pip-wheel-metadata/
 
 # ===============================
-# IDE / Editors
+# Editors & OS
 # ===============================
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
-
-# ===============================
-# OS Files
-# ===============================
 .DS_Store
 Thumbs.db
 desktop.ini
@@ -47,16 +41,38 @@ desktop.ini
 # ===============================
 *.log
 *.prof
-*.lprof
-*.dat
-*.out
-profile/
 profiles/
+profile/
 __profile__/
 *.sqlite3
 
 # ===============================
-# Testing
+# Docker / Volumes / Data
+# ===============================
+pgdata/
+redis-data/
+volumes/
+*.pid
+*.sock
+*.pid.lock
+
+# ===============================
+# Secrets / Environment
+# ===============================
+.env
+.env.*
+*.pem
+*.key
+*.secret
+
+# ===============================
+# Prometheus / Grafana
+# ===============================
+prometheus_data/
+grafana_data/
+
+# ===============================
+# Testing / Coverage
 # ===============================
 .pytest_cache/
 .coverage
@@ -68,35 +84,7 @@ coverage.xml
 junit-*.xml
 
 # ===============================
-# Jupyter / Notebooks
+# Jupyter
 # ===============================
-.ipynb_checkpoints
+.ipynb_checkpoints/
 *.ipynb
-
-# ===============================
-# Docker / Compose
-# ===============================
-# Ignore local volumes, build artifacts, and overrides
-__pycache__/
-pgdata
-redis-data/
-volumes/
-*.pid
-*.sock
-*.pid.lock
-
-# ===============================
-# Env Files / Secrets
-# ===============================
-.env
-.env.*
-*.secret
-*.key
-*.pem
-
-
-# ===============================
-# Prometheus / Grafana
-# ===============================
-prometheus_data/
-grafana_data/

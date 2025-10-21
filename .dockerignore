@@ -1,14 +1,62 @@
-venv
-__pycache__
+# ===============================
+# Python cache & build artifacts
+# ===============================
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.egg-info/
+build/
+dist/
+
+# ===============================
+# Virtual environments
+# ===============================
+.venv/
+venv/
+ENV/
+env/
+
+# ===============================
+# Logs / Profiling
+# ===============================
 *.log
-.env
-.git
+*.prof
+profiles/
+profile/
+__profile__/
+
+# ===============================
+# Local & IDE files
+# ===============================
+.git/
 .gitignore
-.idea
-.vscode
-dist
-build
-users.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ===============================
+# Data & secrets
+# ===============================
+.env
+.env.*
+*.db
+*.sqlite3
+*.pem
+*.key
+*.secret
+
+# ===============================
+# Tests & docs (exclude from container)
+# ===============================
+tests/
+docs/
+examples/
+
+# ===============================
+# OS specific
+# ===============================
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,30 +1,33 @@
+"""
+Main FastAPI application entry point.
+"""
+
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
+from app.core.lifecycle import lifespan
+from app.core.router_registry import register_routers
 from app.utils.rate_limiter import rate_limiter
-from app.metrics.prometheus import instrumentator
-from app.auth.routes import router as auth_router
-from app.users.routes import router as user_router
-from redis.asyncio import Redis
-import logging
-import os
+from app.utils.profile_middleware import RequestProfilerMiddleware
 
-app = FastAPI(title="Async FastAPI Boilerplate", version="1.0.0")
+app = FastAPI(
+    title="Async FastAPI Starter",
+    version="1.0.0",
+    lifespan=lifespan,
+    description="An async FastAPI backend with JWT Auth, Redis caching, RQ, and Prometheus monitoring.",
+)
 
-# Middlewares
+# === Middleware ===
 app.middleware("http")(rate_limiter)
-instrumentator.instrument(app).expose(app)
+app.add_middleware(RequestProfilerMiddleware)
 
-# Register routers
-app.include_router(auth_router, prefix="/auth", tags=["Auth"])
-app.include_router(user_router, prefix="/users", tags=["Users"])
+# === Routers ===
+register_routers(app)
 
-
-@app.on_event("startup")
-async def startup_event():
-    global redis_client
-    redis_client = Redis(host="redis", port=6379, decode_responses=True)
-    logging.info("✅ Connected to Redis")
+# === Monitoring ===
+Instrumentator().instrument(app).expose(app)
 
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    await redis_client.aclose()
+# === Healthcheck ===
+@app.get("/", tags=["System"])
+async def root():
+    return {"status": "ok", "message": "🚀 FastAPI Async Starter running!"}

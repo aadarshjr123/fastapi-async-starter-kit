@@ -1,0 +1,50 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [{ "expr": "rate(http_requests_total[1m])", "refId": "A" }],
+      "title": "🚀 Requests per Second",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
+      "id": 2,
+      "targets": [{ "expr": "jobs_finished_total", "refId": "A" }],
+      "title": "✅ Jobs Finished",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
+      "id": 3,
+      "targets": [{ "expr": "rate_limited_total", "refId": "A" }],
+      "title": "🚫 Rate-Limited Requests",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "id": 4,
+      "targets": [{ "expr": "queue_length{queue=\"default\"}", "refId": "A" }],
+      "title": "📦 Queue Length",
+      "type": "gauge"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["fastapi", "rq", "redis"],
+  "templating": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" },
+  "title": "API Mini Health Monitor",
+  "uid": "api-mini-health",
+  "version": 1
+}

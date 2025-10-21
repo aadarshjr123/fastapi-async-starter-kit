@@ -1,9 +1,18 @@
-# app/utils/profile_middleware.py
-import cProfile, pstats, io, os, time
+"""
+Middleware that profiles request execution using cProfile.
+Activated only when PROFILE=1.
+"""
+
+import os
+import time
+import cProfile
+from pathlib import Path
+import logging
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-from pathlib import Path
+
+logger = logging.getLogger("app.utils.profiler")
 
 
 class RequestProfilerMiddleware(BaseHTTPMiddleware):
@@ -13,22 +22,27 @@ class RequestProfilerMiddleware(BaseHTTPMiddleware):
         self.dump_dir.mkdir(parents=True, exist_ok=True)
 
     async def dispatch(self, request: Request, call_next):
-        # Only profile when explicitly enabled
+        """
+        Profiles a request if PROFILE=1 is set in the environment.
+        Saves the profiling report in .prof files under /app/profiles.
+        """
         if os.getenv("PROFILE", "0") != "1":
             return await call_next(request)
 
-        pr = cProfile.Profile()
-        start = time.time()
-        pr.enable()
+        profiler = cProfile.Profile()
+        start = time.perf_counter()
+        profiler.enable()
+
         try:
             response: Response = await call_next(request)
         finally:
-            pr.disable()
-        elapsed = (time.time() - start) * 1000
+            profiler.disable()
 
-        # File name: method_path_timestamp.prof (sanitize slashes)
+        elapsed_ms = (time.perf_counter() - start) * 1000
         path = request.url.path.strip("/").replace("/", "_") or "root"
-        fname = f"{request.method}_{path}_{int(time.time())}_{int(elapsed)}ms.prof"
+        fname = f"{request.method}_{path}_{int(elapsed_ms)}ms.prof"
         fpath = self.dump_dir / fname
-        pr.dump_stats(str(fpath))
+        profiler.dump_stats(str(fpath))
+
+        logger.info(f"Profile saved: {fpath} ({elapsed_ms:.2f} ms)")
         return response
